@@ -3,9 +3,9 @@
 ### Repositorio para o codigo do grupo Data Fishermen, na disciplina PSI3 - UFRPE
 
 ### Membros:
-Andre Luiz Ribeiro Arruda
-Ernandes Silva da Costa Luiz
-Helio Ramos
+- Andre Luiz Ribeiro Arruda
+- Ernandes Silva da Costa Luiz
+- Helio Ramos
 
 ## Como rodar o projeto:
 
