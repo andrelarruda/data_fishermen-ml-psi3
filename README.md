@@ -6,6 +6,7 @@
 - Andre Luiz Ribeiro Arruda
 - Ernandes Silva da Costa Luiz
 - Helio Ramos
+- Hugo Teixeira
 
 ## Como rodar o projeto:
 
