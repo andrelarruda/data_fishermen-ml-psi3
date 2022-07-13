@@ -1,0 +1,15 @@
+Metadados
+
+1) id: identificador único
+2) gender: "Male", "Female" ou "Other"
+3) age: idade do paciente
+4) hypertension: 0 se o paciente não tem hipertensão, 1 se o paciente tem hipertensão
+5) heart_disease: 0 se o paciente não tem qualquer doença cardiovascular, 1 se o paciente tem alguma doença cardiovascular
+6) ever_married: "No" ou "Yes"
+7) work_type: "children", "Govt_jov", "Never_worked", "Private" or "Self-employed"
+8) Residence_type: "Rural" ou "Urban"
+9) avg_glucose_level: taxa média de glicose no sangue
+10) bmi: índice de massa corporal (IMC)
+11) smoking_status: "formerly smoked", "never smoked", "smokes" ou "Unknown"*
+12) stroke: 1 se o paciente teve AVC ou 0 caso o paciente não tenha sofrido AVC
+*Observação: "Unknown" em "smoking_status" significa que a inforamção está indisponível para o paciente.
