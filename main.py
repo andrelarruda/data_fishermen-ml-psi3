@@ -16,7 +16,20 @@ def load_data(nrows):
 
 data = load_data(10000)
 
+
+#  Sidebar
+st.sidebar.header('Filtros')
+
+#  **FILTROS**
+#  Filtro idade
+age_selection = st.sidebar.slider('Idade', 0, int(data['age'].max(axis=0)), value=(0, int(data['age'].max(axis=0))))
+minimum_age = age_selection[0]
+maximum_age = age_selection[1]
+
+data = data[((data['age'] >= minimum_age) & (data['age'] <= maximum_age))]
+
 st.subheader('Raw data')
+
 st.write(data)
 
 df_stroke=data.loc[data["stroke"]==1]
