@@ -39,6 +39,26 @@ maximum_age = age_selection[1]
 data = data[((data['age'] >= minimum_age) & (data['age'] <= maximum_age))]
 #  Fim Filtro idade
 
+# Filtro de tipo de trabalho
+work_options = ['Todos'] + list(data['work_type'].unique())
+work_type_select = st.sidebar.selectbox(
+     "Modo de trabalho", options=work_options)
+
+if work_type_select == 'Private':
+    data = data[data['work_type'] == 'Private']
+elif work_type_select == 'Self-employed':
+    data = data[data['work_type'] == 'Self-employed']
+elif work_type_select == 'Govt-job':
+    data = data[data['work_type'] == 'Govt-job']
+elif work_type_select == 'children':
+    data = data[data['work_type'] == 'children']
+elif work_type_select == 'Never_worked':
+    data = data[data['work_type'] == 'Never_worked']
+else:
+    data = data
+# exemplo: https://discuss.streamlit.io/t/filtering-data-with-pandas/20724
+#  Fim Filtro de tipo de trabalho
+
 st.subheader('Raw data')
 
 st.write(data)
