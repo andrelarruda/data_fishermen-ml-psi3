@@ -14,19 +14,10 @@ def load_data(nrows):
     data.rename(lowercase, axis='columns', inplace=True)
     return data
 
-data_load_state = st.text('Loading data...')
-# Load 10,000 rows of data into the dataframe.
 data = load_data(10000)
-# Notify the reader that the data was successfully loaded.
-data_load_state.text('Data loaded')
 
 st.subheader('Raw data')
 st.write(data)
-
-#st.subheader('Quantity of null data by column')
-#st.text(df.isnull().sum())
-
-x = data[['age', 'hypertension', 'gender']].copy()
 
 df_stroke=data.loc[data["stroke"]==1]
 df_no_stroke=data.loc[data["stroke"]==1]
