@@ -16,17 +16,28 @@ def load_data(nrows):
 
 data = load_data(10000)
 
-
 #  Sidebar
 st.sidebar.header('Filtros')
 
 #  **FILTROS**
+# Filtro de ocorrencia de AVC
+avc_ocurrence_option = st.sidebar.radio(
+     "Ocorrência de AVC",
+     ('Todos', 'Sim', 'Não'))
+
+if avc_ocurrence_option == 'Sim':
+    data = data[data['stroke'] == 1]
+elif avc_ocurrence_option == 'Não':
+    data = data[data['stroke'] == 0]
+#  Fim Filtro de ocorrencia de AVC
+
 #  Filtro idade
 age_selection = st.sidebar.slider('Idade', 0, int(data['age'].max(axis=0)), value=(0, int(data['age'].max(axis=0))))
 minimum_age = age_selection[0]
 maximum_age = age_selection[1]
 
 data = data[((data['age'] >= minimum_age) & (data['age'] <= maximum_age))]
+#  Fim Filtro idade
 
 st.subheader('Raw data')
 
