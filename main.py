@@ -39,6 +39,14 @@ maximum_age = age_selection[1]
 data = data[((data['age'] >= minimum_age) & (data['age'] <= maximum_age))]
 #  Fim Filtro idade
 
+#  Filtro IMC
+bmi_selection = st.sidebar.slider('IMC', 0, int(data['bmi'].max(axis=0)), value=(0, int(data['bmi'].max(axis=0))))
+minimum_bmi = bmi_selection[0]
+maximum_bmi = bmi_selection[1]
+
+data = data[((data['bmi'] >= minimum_bmi) & (data['bmi'] <= maximum_bmi))]
+# Fim Filtro IMC
+
 # Filtro de tipo de trabalho
 work_options = ['Todos'] + list(data['work_type'].unique())
 work_type_select = st.sidebar.selectbox(
@@ -59,19 +67,28 @@ else:
 # exemplo: https://discuss.streamlit.io/t/filtering-data-with-pandas/20724
 #  Fim Filtro de tipo de trabalho
 
+
+# Exibir tabela
 st.subheader('Raw data')
-
 st.write(data)
-
 df_stroke=data.loc[data["stroke"]==1]
 df_no_stroke=data.loc[data["stroke"]==1]
+# Fim exibir tabela
 
+# Grafico exibir AVC por Idade
 st.subheader('Age')
-
 df_stroke_age = df_stroke.groupby("age")["stroke"].count()
 st.area_chart(data=df_stroke_age)
+# Fim grafico Exibir AVC por Idade
 
+# Grafico AVC por tipo de localidade
 st.subheader('Residence Type')
-
 df_stroke_glucose = df_stroke.groupby("residence_type")["stroke"].count()
 st.bar_chart(data=df_stroke_glucose)
+# Fim grafico AVC por tipo de localidade
+
+# Grafico numero de AVC por Smoking_status
+st.subheader('Smoker')
+df_stroke_smoker = df_stroke.groupby("smoking_status")["stroke"].count()
+st.bar_chart(data=df_stroke_smoker)
+# Fim grafico numero de AVC por Smoking_status
