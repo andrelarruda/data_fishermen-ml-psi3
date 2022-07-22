@@ -32,9 +32,9 @@ elif avc_ocurrence_option == 'Não':
 #  Fim Filtro de ocorrencia de AVC
 
 #  Filtro idade
-age_selection = st.sidebar.slider('Idade', 0, int(data['age'].max(axis=0)), value=(0, int(data['age'].max(axis=0))))
+age_selection = st.sidebar.slider('Idade', 0, int(data['age'].max(axis=0)), value=(0, int(data['age'].max(axis=0)+1)))
 minimum_age = age_selection[0]
-maximum_age = age_selection[1]
+maximum_age = age_selection[1] + 1
 
 data = data[((data['age'] >= minimum_age) & (data['age'] <= maximum_age))]
 #  Fim Filtro idade
