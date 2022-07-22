@@ -7,9 +7,10 @@ st.title('Strokes')
 AGE_COLUMN = 'age'
 DATA_URL = ('./data/stroke-data.csv')
 
-@st.cache
+@st.cache(allow_output_mutation=True)
 def load_data(nrows):
     data = pd.read_csv(DATA_URL, nrows=nrows)
+    data['age'] = data['age'].astype(int)
     lowercase = lambda x: str(x).lower()
     data.rename(lowercase, axis='columns', inplace=True)
     return data
