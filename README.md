@@ -7,6 +7,7 @@
 - Ernandes Silva da Costa Luiz
 - Helio Ramos
 - Hugo Teixeira
+- Misael Tomaz
 
 ## Como rodar o projeto:
 
