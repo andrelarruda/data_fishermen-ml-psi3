@@ -5,7 +5,7 @@ import numpy as np
 st.title('Strokes')
 
 AGE_COLUMN = 'age'
-DATA_URL = ('./data/stroke-data.csv')
+DATA_URL = ('./data/newstroke-data.csv')
 
 @st.cache(allow_output_mutation=True)
 def load_data(nrows):
@@ -63,11 +63,30 @@ elif work_type_select == 'children':
     data = data[data['work_type'] == 'children']
 elif work_type_select == 'Never_worked':
     data = data[data['work_type'] == 'Never_worked']
+
 else:
     data = data
 # exemplo: https://discuss.streamlit.io/t/filtering-data-with-pandas/20724
 #  Fim Filtro de tipo de trabalho
 
+#filtro Geral
+
+gender_options = ['Todos'] + list(data['gender'].unique())
+gender_type_select = st.sidebar.selectbox(
+     "Gênero", options=gender_options)
+
+if gender_type_select == 'Male':
+    data = data[data['gender'] == 'Male']
+
+elif  gender_type_select == 'Female':
+    data = data[data['gender'] == 'Female']
+
+elif  gender_type_select == 'Other':
+    data = data[data['gender'] == 'Other']
+else:
+    data = data
+
+#fim filtro Geral
 
 # Exibir tabela
 st.subheader('Raw data')
@@ -93,3 +112,9 @@ st.subheader('Smoker')
 df_stroke_smoker = df_stroke.groupby("smoking_status")["stroke"].count()
 st.bar_chart(data=df_stroke_smoker)
 # Fim grafico numero de AVC por Smoking_status
+
+# Grafico para mostra a quantidade de vítimas de AVC divida por gênero
+st.subheader('Vítimas por gênero')
+df_gender_victim = df_stroke.groupby("gender")["stroke"].count()
+st.bar_chart(data=df_gender_victim)
+# Fim Grafico para mostra a quantidade de vítimas de AVC divida por gênero
