@@ -90,6 +90,11 @@ else:
 
 #fim filtro Geral
 
+# Análise Exploratória
+st.subheader("Exploratory Data Analysis")
+st.write(data.describe())
+
+
 # Exibir tabela
 st.subheader('Raw data')
 st.write(data)
