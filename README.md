@@ -5,7 +5,6 @@
 ### Membros:
 - Andre Luiz Ribeiro Arruda
 - Ernandes Silva da Costa Luiz
-- Helio Ramos
 - Hugo Teixeira
 - Misael Tomaz
 
