@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from utils.data import Data
+import plotly.express as px
 
 st.set_page_config(page_title="Stroke Analysis", page_icon=":broken_heart:")
 
@@ -85,28 +86,28 @@ class HomePage:
     def raw_data_table(self):
         st.subheader('Raw data')
         st.write(self.data)
-        df_stroke=self.data.loc[self.data["stroke"]==1]
-        df_no_stroke=self.data.loc[self.data["stroke"]==1]
 
     def stroke_by_age_graphic(self):
         st.subheader('Age')
-        df_stroke_age = self.get_stroke_data().groupby("age")["stroke"].count()
-        st.area_chart(data=df_stroke_age)
+        df_stroke_age = self.get_stroke_data().groupby("age")["stroke"].count().reset_index(name='Derrames')
+        st.plotly_chart(px.area(df_stroke_age, y='Derrames',x='age'))
+
 
     def stroke_by_residence_type_graphic(self):
         st.subheader('Residence Type')
-        df_stroke_glucose = self.get_stroke_data().groupby("residence_type")["stroke"].count()
-        st.bar_chart(data=df_stroke_glucose)
+        df_stroke_glucose = self.get_stroke_data().groupby("residence_type")["stroke"].count().reset_index(name='Derrames')
+        st.plotly_chart(px.bar(df_stroke_glucose,orientation='h',x="Derrames",y="residence_type"))
+
     
     def stroke_by_smoker_graphic(self):
         st.subheader('Smoker')
-        df_stroke_smoker = self.get_stroke_data().groupby("smoking_status")["stroke"].count()
-        st.bar_chart(data=df_stroke_smoker)
+        df_stroke_smoker = self.get_stroke_data().groupby("smoking_status")["stroke"].count().reset_index(name='Derrames')
+        st.plotly_chart(px.bar(df_stroke_smoker,orientation='h',x="Derrames",y="smoking_status"))
 
     def stroke_by_gender(self):
         st.subheader('Vítimas por gênero')
-        df_gender_victim = self.get_stroke_data().groupby("gender")["stroke"].count()
-        st.bar_chart(data=df_gender_victim)
+        df_gender_victim = self.get_stroke_data().groupby("gender")["stroke"].count().reset_index(name='Derrames')
+        st.plotly_chart(px.bar(df_gender_victim,orientation='h',x="Derrames",y="gender"))
 
 
 home = HomePage()
