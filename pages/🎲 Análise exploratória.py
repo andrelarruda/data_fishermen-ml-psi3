@@ -23,11 +23,13 @@ class ExploratoryAnalysis:
 
     def age_box_plot(self):
         st.subheader("Idade")
+        st.text_area(label="", value="Abaixo temos um gráfico demográfico do parâmetro idade. É possível perceber que a maioria das idades dos indivíduos participantes da pesquisa está distribuída entre 59 e 78 anos, porém podemos notar ainda a presença de alguns valores discrepantes, superiores e inferiores.")
         data = self.get_stroke_data()
         st.plotly_chart(px.box(data,y="age",x="stroke"))
     
     def bmi_box_plot(self):
         st.subheader("IMC")
+        st.text_area(label="", value="No caso do IMC, a maioria dos valores se concentra entre 27 e 32.5, com a presença de vários outliers. Com valor mínimo em 16.9, e valor máximo em 56.6. A mediana é 28.89, aproximadamente.")
         data = self.get_stroke_data()
         st.plotly_chart(px.box(data,y="bmi",x="stroke"))
 
