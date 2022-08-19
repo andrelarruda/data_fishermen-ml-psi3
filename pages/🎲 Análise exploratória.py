@@ -1,3 +1,4 @@
+from cProfile import label
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -5,7 +6,7 @@ from utils.data import Data
 import plotly.express as px
 
 
-st.set_page_config(page_title="Stroke Analysis", page_icon=":broken_heart:")
+st.set_page_config(page_title="Stroke Analysis", page_icon=":chart:")
 
 
 class ExploratoryAnalysis:
@@ -38,9 +39,17 @@ class ExploratoryAnalysis:
         data = self.get_stroke_data()
         st.plotly_chart(px.box(data,y="avg_glucose_level",x="stroke"))
 
+    def data_balancing(self):
+        st.subheader('Ocorrências de AVC')
+        st.text_area(label="", value="Com o gráfico a seguir é possível perceber que existem mais casos que não houveram AVC, o que demonstra que esses dados estão desbalanceados. Portanto, para efetuar a classificação sobre esses dados, será necessário antes efetuar o seu balanceamento.")
+
+        distribution_stroke = self.data.stroke.value_counts()
+        st.plotly_chart(px.bar(distribution_stroke, orientation='v', x=['Não teve AVC', 'Teve AVC'], y='stroke', labels={ 'stroke': 'Número de Ocorrências', 'x': 'Categoria'} ))
+
 
 exploratory_analysis_page = ExploratoryAnalysis()
 exploratory_analysis_page.exploratory_analysis()
+exploratory_analysis_page.data_balancing()
 exploratory_analysis_page.age_box_plot()
 exploratory_analysis_page.bmi_box_plot()
 exploratory_analysis_page.avg_glucose_level_box_plot()

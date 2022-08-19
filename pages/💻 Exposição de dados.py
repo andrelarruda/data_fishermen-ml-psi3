@@ -4,7 +4,7 @@ import numpy as np
 from utils.data import Data
 import plotly.express as px
 
-st.set_page_config(page_title="Stroke Analysis", page_icon=":broken_heart:")
+st.set_page_config(page_title="Stroke Analysis", page_icon=":brain:")
 
 
 class HomePage:
