@@ -40,11 +40,12 @@ class ExploratoryAnalysis:
         st.plotly_chart(px.box(data,y="avg_glucose_level",x="stroke"))
 
     def data_balancing(self):
-        st.subheader('Ocorrências de AVC')
-        st.text_area(label="", value="Com o gráfico a seguir é possível perceber que existem mais casos que não houveram AVC, o que demonstra que esses dados estão desbalanceados. Portanto, para efetuar a classificação sobre esses dados, será necessário antes efetuar o seu balanceamento.")
+        st.subheader('Distribução das Ocorrências de AVC')
 
         distribution_stroke = self.data.stroke.value_counts()
         st.plotly_chart(px.bar(distribution_stroke, orientation='v', x=['Não teve AVC', 'Teve AVC'], y='stroke', labels={ 'stroke': 'Número de Ocorrências', 'x': 'Categoria'} ))
+
+        st.text_area(label="", value="O gráfico de distribuição nos permite ter uma visão geral da distribuição de ocorrências do AVC nos dados. Podemos perceber que existem mais casos que não houveram AVC, o que demonstra que esses dados estão desbalanceados. Portanto, para efetuar a classificação sobre esses dados, será necessário antes efetuar o seu balanceamento.", height=120)
 
 
 exploratory_analysis_page = ExploratoryAnalysis()
