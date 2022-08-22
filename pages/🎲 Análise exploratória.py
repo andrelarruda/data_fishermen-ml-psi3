@@ -35,7 +35,7 @@ class ExploratoryAnalysis:
         st.plotly_chart(px.box(data,y="bmi",x="stroke"))
 
     def avg_glucose_level_box_plot(self):
-        st.subheader("Nível de glucose")
+        st.subheader("Nível de glicose")
         data = self.get_stroke_data()
         st.plotly_chart(px.box(data,y="avg_glucose_level",x="stroke"))
 

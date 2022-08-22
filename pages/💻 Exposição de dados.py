@@ -84,23 +84,23 @@ class HomePage:
         return self.data.loc[self.data["stroke"]==1]
 
     def raw_data_table(self):
-        st.subheader('Raw data')
+        st.subheader('Dados puros')
         st.write(self.data)
 
     def stroke_by_age_graphic(self):
-        st.subheader('Age')
+        st.subheader('Idade')
         df_stroke_age = self.get_stroke_data().groupby("age")["stroke"].count().reset_index(name='Derrames')
         st.plotly_chart(px.area(df_stroke_age, y='Derrames',x='age'))
 
 
     def stroke_by_residence_type_graphic(self):
-        st.subheader('Residence Type')
+        st.subheader('Tipo de Residência')
         df_stroke_glucose = self.get_stroke_data().groupby("residence_type")["stroke"].count().reset_index(name='Derrames')
         st.plotly_chart(px.bar(df_stroke_glucose,orientation='h',x="Derrames",y="residence_type"))
 
     
     def stroke_by_smoker_graphic(self):
-        st.subheader('Smoker')
+        st.subheader('Status de uso do Cigarro')
         df_stroke_smoker = self.get_stroke_data().groupby("smoking_status")["stroke"].count().reset_index(name='Derrames')
         st.plotly_chart(px.bar(df_stroke_smoker,orientation='h',x="Derrames",y="smoking_status"))
 
