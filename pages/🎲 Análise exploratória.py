@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 from utils.data import Data
 import plotly.express as px
-import matplotlib.pyplot as plt
 
 
 st.set_page_config(page_title="Stroke Analysis", page_icon=":chart:")
