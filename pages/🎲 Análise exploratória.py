@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from utils.data import Data
 import plotly.express as px
+import matplotlib.pyplot as plt
 
 
 st.set_page_config(page_title="Stroke Analysis", page_icon=":chart:")
@@ -47,6 +48,25 @@ class ExploratoryAnalysis:
 
         st.text_area(label="", value="O gráfico de distribuição nos permite ter uma visão geral da distribuição de ocorrências do AVC nos dados. Podemos perceber que existem mais casos que não houveram AVC, o que demonstra que esses dados estão desbalanceados. Portanto, para efetuar a classificação sobre esses dados, será necessário antes efetuar o seu balanceamento.", height=120)
 
+    def scatter_plot(self):
+        st.subheader('Mapa de espalhamento para nível médio de glicose')
+        st.text_area(label='', value='Utilizando uma amostra de 1000 indivíduos, abaixo temos um gráfico de espalhamento (scatter plot) que nos mostra a relação entre o nível médio de glicose e a idade. É possível notar que o nível médio de glicose aparentemente não é um fator de risco para a ocorrência do AVC. Conforme observamos no subgráfico de distribuição das idades, os respectivos valores estão distribuídos de maneira diferente, para os indivíduos que tiveram AVC e os que não tiveram. Podemos notar também que a ocorrência de AVC é mais acentuada à partir dos 40 anos.', height=200)
+
+        q = 1000
+        df = self.data.head(q)
+
+        df['gender'] = df['gender'].replace({'Male':0,'Female':1,'Other':-1}).astype(np.uint8)
+        df['residence_type'] = df['residence_type'].replace({'Rural':0,'Urban':1}).astype(np.uint8)
+        df['work_type'] = df['work_type'].replace({'Private':0,'Self-employed':1,'Govt_job':2,'children':3,'Never_worked':4}).astype(np.uint8)
+        df['smoking_status'] = df['smoking_status'].replace({'smokes':1,'never smoked':0,'formerly smoked':2 ,'Unknown':3}).astype(np.uint8)
+        df['ever_married'] = df['ever_married'].replace({'Yes':1,'No':0}).astype(np.uint8)
+        df['stroke'] = df['stroke'].replace({'1':1,'0':0}).astype(np.uint8)
+
+        st.set_option('deprecation.showPyplotGlobalUse', False)
+        x_axis = df['age']
+        y_axis = df['avg_glucose_level']
+
+        st.plotly_chart(px.scatter(df, x=x_axis, y=y_axis, color='stroke', hover_data=['bmi', 'hypertension', 'heart_disease'], labels={ 'avg_glucose_level': 'Nível médio de glicose', 'age': 'Idade', 'stroke': 'AVC', 'bmi': 'IMC', 'hypertension': 'Hipertensão', 'heart_disease': 'Doença cardíaca'}, color_discrete_sequence=['#C72934', '#a2a79e'], marginal_x="box"))
 
 exploratory_analysis_page = ExploratoryAnalysis()
 exploratory_analysis_page.exploratory_analysis()
@@ -54,3 +74,4 @@ exploratory_analysis_page.data_balancing()
 exploratory_analysis_page.age_box_plot()
 exploratory_analysis_page.bmi_box_plot()
 exploratory_analysis_page.avg_glucose_level_box_plot()
+exploratory_analysis_page.scatter_plot()
