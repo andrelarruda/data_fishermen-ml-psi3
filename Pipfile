@@ -15,6 +15,7 @@ streamlit = "*"
 toml = "*"
 xlrd = "*"
 openpyxl = "*"
+matplotlib="*"
 
 [dev-packages]
 
