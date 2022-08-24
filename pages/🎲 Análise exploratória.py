@@ -68,7 +68,7 @@ class ExploratoryAnalysis:
         st.plotly_chart(px.scatter(df, x=x_axis, y=y_axis, color='stroke', hover_data=['bmi', 'hypertension', 'heart_disease'], labels={ 'avg_glucose_level': 'Nível médio de glicose', 'age': 'Idade', 'stroke': 'AVC', 'bmi': 'IMC', 'hypertension': 'Hipertensão', 'heart_disease': 'Doença cardíaca'}, color_discrete_sequence=['#C72934', '#a2a79e'], marginal_x="box", marginal_y="box"))
 
         # IMC - Scatter Plot
-        st.text_area(label='IMC x Idade', value='Abaixo plotamos o mapa que relaciona o IMC com a Idade, considerando os casos que houveram ocorrência de AVC e os que não houveram. Os pontos aparentam ser mais uniformes, não permitindo extrair informações relevantes.', height=100)
+        st.text_area(label='IMC x Idade', value='Abaixo plotamos o mapa que relaciona o IMC com a Idade, considerando os casos que houveram ocorrência de AVC e os que não houveram. Os pontos aparentam ser mais uniformes, não permitindo extrair informações relevantes para o estudo. Há alguns pontos discrepantes em relação ao IMC, porém de indivíduos que não tiveram AVC.', height=100)
 
         x_axis_2 = df['age']
         y_axis_2 = df['bmi']
