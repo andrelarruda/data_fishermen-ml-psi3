@@ -1,13 +1,10 @@
 import pandas as pd
-import seaborn as sns
 from utils.data import Data
 import streamlit as st
 import numpy as np
 import plotly.express as px
 from utils.data import Data
 import matplotlib.pyplot as plt
-import warnings
-warnings.filterwarnings('ignore')
 from imblearn.over_sampling import SMOTE
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler,LabelEncoder
@@ -16,7 +13,6 @@ from sklearn.model_selection import train_test_split,cross_val_score
 from sklearn.svm import SVC
 from sklearn.linear_model import LinearRegression,LogisticRegression
 import streamlit as st
-import plotly.figure_factory as ff
 import numpy as np
 
 
