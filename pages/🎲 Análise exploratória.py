@@ -43,13 +43,13 @@ class ExploratoryAnalysis:
         st.subheader('Distribução das Ocorrências de AVC')
 
         distribution_stroke = self.data.stroke.value_counts()
-        st.plotly_chart(px.bar(distribution_stroke, orientation='v', x=['Não teve AVC', 'Teve AVC'], y='stroke', labels={ 'stroke': 'Número de Ocorrências', 'x': 'Categoria'} ))
+        st.plotly_chart(px.bar(distribution_stroke, orientation='v', x=['Não teve AVC', 'Teve AVC'], y='stroke', labels={ 'stroke': 'Número de Ocorrências', 'x': 'Categoria', '#3260a8': 'Não teve AVC', '#d92121': 'Teve AVC'}, color={'#3260a8': 'Não teve AVC', '#d92121': 'Teve AVC'} ))
 
         st.text_area(label="", value="O gráfico de distribuição nos permite ter uma visão geral da distribuição de ocorrências do AVC nos dados. Podemos perceber que existem mais casos que não houveram AVC, o que demonstra que esses dados estão desbalanceados. Portanto, para efetuar a classificação sobre esses dados, será necessário antes efetuar o seu balanceamento.", height=120)
 
     def scatter_plot(self):
-        st.subheader('Mapa de espalhamento para nível médio de glicose')
-        st.text_area(label='Nível de Glicose x Idade', value='Utilizando uma amostra de 1000 indivíduos, abaixo temos um gráfico de espalhamento (scatter plot) que nos mostra a relação entre o nível médio de glicose e a idade. É possível notar que o nível médio de glicose aparentemente não é um fator de risco para a ocorrência do AVC. Conforme observamos no subgráfico de distribuição das idades, os respectivos valores estão distribuídos de maneira diferente, para os indivíduos que tiveram AVC e os que não tiveram. Podemos notar também que a ocorrência de AVC é mais acentuada à partir dos 40 anos. Estatisticamente, se olharmos o box plot em relação ao eixo y, 50%% dos indivíduos que tiveram AVC possuem valores de nível médio de glicose abaixo da mediana, que é de 105.22. Os outros 50%% estão distribuídos acima do valor da mediana. O que acaba aumentando ainda mais nossa suspeita de que o nível médio de glicose não é um fator determinante para a ocorrência de AVC. A idade, por outro lado, aparenta ser um parâmetro importante para ocorrência do AVC, uma vez que a maioria dos valores estão distribuídos acima dos 59 anos (analisando o box plot em relação ao eixo x).', height=300)
+        st.subheader('Gráfico de dispersão para nível médio de glicose')
+        st.text_area(label='Nível de Glicose x Idade', value='Utilizando uma amostra de 1000 indivíduos, abaixo temos um gráfico de dispersão (scatter plot) que nos mostra a relação entre o nível médio de glicose e a idade. Aparetemente é uma relação neutra, mas também é possível observar a possível existência de dois grupos distintos, separados pela linha horizontal (eixo y) no valor 150. Podemos notar também que a ocorrência de AVC é mais acentuada à partir dos 40 anos. Estatisticamente, se olharmos o diagrama de caixa em relação ao eixo y, 25% dos indivíduos que tiveram AVC possuem valores de nível médio de glicose abaixo da mediana, entre 79,57 e 105,22. Os outros 25% estão distribuídos acima do valor da mediana, até 196,76.', height=300)
 
         q = 1000
         df = self.data.head(q)
@@ -65,7 +65,7 @@ class ExploratoryAnalysis:
         x_axis = df['age']
         y_axis = df['avg_glucose_level']
 
-        st.plotly_chart(px.scatter(df, x=x_axis, y=y_axis, color='stroke', hover_data=['bmi', 'hypertension', 'heart_disease'], labels={ 'avg_glucose_level': 'Nível médio de glicose', 'age': 'Idade', 'stroke': 'AVC', 'bmi': 'IMC', 'hypertension': 'Hipertensão', 'heart_disease': 'Doença cardíaca'}, color_discrete_sequence=['#C72934', '#a2a79e'], marginal_x="box", marginal_y="box"))
+        st.plotly_chart(px.scatter(df, x=x_axis, y=y_axis, color='stroke', hover_data=['bmi', 'hypertension', 'heart_disease'], labels={ 'avg_glucose_level': 'Nível médio de glicose', 'age': 'Idade', 'stroke': 'AVC', 'bmi': 'IMC', 'hypertension': 'Hipertensão', 'heart_disease': 'Doença cardíaca'}, color_discrete_sequence=['#C72934', '#a2a79e'], marginal_y='box'))
 
         # IMC - Scatter Plot
         st.text_area(label='IMC x Idade', value='Abaixo plotamos o mapa que relaciona o IMC com a Idade, considerando os casos que houveram ocorrência de AVC e os que não houveram. Os pontos aparentam ser mais uniformes, não permitindo extrair informações relevantes para o estudo. Há alguns pontos discrepantes em relação ao IMC, porém de indivíduos que não tiveram AVC.', height=100)
@@ -76,7 +76,7 @@ class ExploratoryAnalysis:
         st.plotly_chart(px.scatter(df, x=x_axis_2, y=y_axis_2, color='stroke', hover_data=['bmi', 'hypertension', 'heart_disease', "avg_glucose_level"], labels={ 'avg_glucose_level': 'Nível médio de glicose', 'age': 'Idade', 'stroke': 'AVC', 'bmi': 'IMC', 'hypertension': 'Hipertensão', 'heart_disease': 'Doença cardíaca'}, color_discrete_sequence=['#C72934', '#a2a79e']))
 
         # IMC x Glicose
-        st.text_area(label='IMC x Nível médio de glicose', value='Com o seguinte gráfico conseguimos perceber a divisão dos pontos em algo que se assemelha a 2 clusteres: um mais à esquerda - com vários pontos de indivíduos sem ocorrência de AVC - e outro mais à direita - tendo como maioria indivíduos que tiveram AVC. Porém, como podemos perceber ao analisar o box plot para o nível médio de glicose, 50%% dos indivíduos que tiveram AVC registraram glicose abaixo da mediana. Mais uma vez fortalecendo a tese de que esse parâmetro não tem relação direta com a ocorrência de AVC, porém nenhuma hipótese ainda foi descartada, uma vez que tal cenário pode ser em decorrência do desbalanceamento dos dados.', height=200)
+        st.text_area(label='IMC x Nível médio de glicose', value='Com o seguinte gráfico conseguimos perceber a divisão dos pontos em algo que se assemelha a 2 grupos: um mais à esquerda - com vários pontos de indivíduos sem ocorrência de AVC - e outro mais à direita - tendo como maioria indivíduos que tiveram AVC. Porém, como podemos perceber ao analisar o diagrama de caixa para o nível médio de glicose, 25% dos indivíduos que tiveram AVC registraram glicose abaixo da mediana.', height=200)
 
         x_axis_3 = df['avg_glucose_level']
         y_axis_3 = df['bmi']
