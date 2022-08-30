@@ -1,3 +1,4 @@
+import atexit
 import pandas as pd
 from utils.data import Data
 import streamlit as st
@@ -52,15 +53,15 @@ df_balanceado = pd.DataFrame(y_train_resh,columns=['stroke'])
 depois_balanceamento=df_balanceado.groupby("stroke")["stroke"].count().reset_index(name='qtd_stroke')
 antes_balanceamento=df.groupby("stroke")["stroke"].count().reset_index(name='qtd_stroke')
 
-antes_balanceamento['stroke'] = antes_balanceamento['stroke'].replace({1:'yes_stroke',0:'no_stroke'}).astype(str)
-depois_balanceamento['stroke'] = antes_balanceamento['stroke'].replace({1:'yes_stroke',0:'no_stroke'}).astype(str)
-st.text_area(label='Dados não balanceados.', value='Observando o gráfico abaixo podemos notar que o número de casos confirmados de AVC é muito menor do que os casos não confirmados, dessa maneira seria difícil encontrar um modelo que trouxesse um resultado satisfatório', height=100)
-fig = px.bar(antes_balanceamento, x="stroke", y="qtd_stroke", color="stroke", title="Antes do balanceamento")
+antes_balanceamento['stroke'] = antes_balanceamento['stroke'].replace({1:'Sim',0:'Não'}).astype(str)
+depois_balanceamento['stroke'] = antes_balanceamento['stroke'].replace({1:'Sim',0:'Não'}).astype(str)
+st.text_area(label='Dados não balanceados.', value='Observando o gráfico abaixo podemos notar que o número de casos confirmados de AVC é muito menor do que os casos não confirmados, dessa maneira seria difícil encontrar um modelo que trouxesse um resultado satisfatório.', height=100)
+fig = px.bar(antes_balanceamento, x="stroke", y="qtd_stroke", color="stroke", title="Antes do balanceamento", labels={ 'qtd_stroke': 'Quantidade de ocorrências', 'stroke': 'Ocorrência de AVC', 'no_stroke': 'Não', 'yes_stroke': 'Sim' })
 st.plotly_chart(fig,use_container_width=True)
 
 st.text_area(label='Dados  balanceados.', value='Foi utilizado o SMOTE(Synthetic Minority Oversampling Technique) para balancear os dados e assim obter melhores resultados. Como o número de casos positivos é muito menor  do que os de casos negativos, o SMOTE foi ideal para esse balanceamento, já que ele ira preencher com mais casos positivos  nosso dataframe', height=150)
 
-fig2 = px.bar(depois_balanceamento, x="stroke", y="qtd_stroke", color="stroke", title="Depois do balanceamento")
+fig2 = px.bar(depois_balanceamento, x="stroke", y="qtd_stroke", color="stroke", title="Depois do balanceamento", labels={ 'qtd_stroke': 'Quantidade de ocorrências', 'stroke': 'Ocorrência de AVC', 'no_stroke': 'Não', 'yes_stroke': 'Sim' })
 st.plotly_chart(fig2,use_container_width=True)
 
 
