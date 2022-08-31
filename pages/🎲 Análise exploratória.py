@@ -52,7 +52,7 @@ class ExploratoryAnalysis:
 
     def bmi_stroke(self):
         st.subheader('Distribuição e comparação IMC')
-        st.text_area(label="", value="")
+        st.text_area(label="", value="Ao analisar o gráfico da distirbuição de IMC, é perceptível que pessoas sobre-peso não possuem maior tendência a desenvolver AVC. No entanto, como maior parte da amostra encontra-se na região intermediária do gráfico, esse pode ser um dos fatores.")
         x1 = self.data.loc[self.data['stroke'] == 0]['bmi']
         x2 = self.data.loc[self.data['stroke'] == 1]['bmi']
         hist_data = [x1, x2]
@@ -72,7 +72,7 @@ class ExploratoryAnalysis:
 
     def glucose_stroke(self):
         st.subheader('Distribuição e comparação Glicose')
-        st.text_area(label="", value="teste")
+        st.text_area(label="", value="Diferente do gráfico que analisa o IMC, o gráfico da glicose mostra uma tendência de casos em pacientes com a glicose elevada.")
         x1 = self.data.loc[self.data['stroke'] == 0]['avg_glucose_level']
         x2 = self.data.loc[self.data['stroke'] == 1]['avg_glucose_level']
         hist_data = [x1, x2]
