@@ -1,4 +1,3 @@
-import atexit
 import pandas as pd
 from utils.data import Data
 import streamlit as st
@@ -16,8 +15,10 @@ from sklearn.model_selection import train_test_split,cross_val_score
 from sklearn.svm import SVC
 from sklearn.linear_model import LinearRegression,LogisticRegression
 import streamlit as st
-import numpy as np
+
 from sklearn.metrics import plot_confusion_matrix, classification_report,confusion_matrix
+
+
 
 data = Data().get_data()
 
