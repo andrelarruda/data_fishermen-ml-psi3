@@ -77,88 +77,50 @@ rf_pipeline = Pipeline(steps = [('scale',StandardScaler()),('RF',RandomForestCla
 svm_pipeline = Pipeline(steps = [('scale',StandardScaler()),('SVM',SVC(random_state=42))])
 logreg_pipeline = Pipeline(steps = [('scale',StandardScaler()),('LR',LogisticRegression(random_state=42))])
 
-#RandomFlorest -  Treinamento
+# Função para gerar matrizes de confusão
+def matrix(classifier, classifierName, score):
+    score = score.mean()
+    st.subheader('Matriz de Confusão ' + classifierName + ':')
+    st.text_area(label = "Mean f1 score:", value = classifierName + " mean: " + str(score),  height = 1)
 
+    fig = px.imshow(classifier, text_auto=True, aspect="auto", color_continuous_scale='ylgnbu',
+                labels=dict(x="Valores previstos ", y="Valores reais", color="Número de casos"),
+                x=['Predição negativa', 'Predição positiva'],
+                y=['Negativo', 'Positivo']
+               )
+
+    fig.update_xaxes(side="bottom")
+    st.plotly_chart(fig)
+
+#RandomForest - Treinamento + Matriz de confusão + F1 score
 rf_pipeline.fit(X_train_resh,y_train_resh)
 predictionsRF=rf_pipeline.predict(X_test)
 rfcm=confusion_matrix(y_test,predictionsRF)
 
+rf_cv = cross_val_score(rf_pipeline,X_train_resh,y_train_resh,cv=10,scoring='f1')
 
-st.text_area(label='Matrix de Confusão Random Forest', value="",  height=1)
-
-fig3 = px.imshow(rfcm,text_auto=True, aspect="auto",color_continuous_scale='ylgnbu',
-                labels=dict(x="Valores previstos ", y="Valores reais", color="Numero de casos"),
-                x=['Predição negativa', 'Predição positiva'],
-                y=['negativo', 'positivo']
-               )
+matrix(rfcm, 'Random Forest', rf_cv)
 
 
-
-fig3.update_xaxes(side="bottom")
-st.plotly_chart(fig3)
-
-
-
-#LogisticRegression -  Treinamento
-
+#LogisticRegression -  Treinamento + Matriz de confusão + F1 score
 logreg_pipeline.fit(X_train_resh,y_train_resh)
 predictionsLR=logreg_pipeline.predict(X_test)
 lgrmc= confusion_matrix(y_test,predictionsLR)
 
-st.text_area(label='Matrix de Confusão Logistic Regression',  value="" ,  height=1)
+logreg_cv = cross_val_score(logreg_pipeline,X_train_resh,y_train_resh,cv=10,scoring='f1')
 
-fig4 = px.imshow(lgrmc,text_auto=True, aspect="auto",color_continuous_scale='ylgnbu',
-                labels=dict(x="Valores previstos ", y="Valores reais", color="Numero de casos"),
-                x=['Predição negativa', 'Predição positiva'],
-                y=['negativo', 'positivo']
-               )
+matrix(lgrmc, 'Logistic Regression', logreg_cv)
 
 
-
-fig4.update_xaxes(side="bottom")
-st.plotly_chart(fig4)
-
-
-
-
-#SVC - Treinamento
-
+#SVC - Treinamento + Matriz de confusão + F1 score
 svm_pipeline.fit(X_train_resh,y_train_resh)
 predictionsSVC=svm_pipeline.predict(X_test)
 svmcm=confusion_matrix(y_test,predictionsSVC)
 
-#matriz de confusão
-st.text_area(label='Matrix de Confusão SVC',  value="" , height=1)
-
-fig5 = px.imshow(svmcm,text_auto=True, aspect="auto",color_continuous_scale='ylgnbu',
-                labels=dict(x="Valores previstos ", y="Valores reais", color="Numero de casos"),
-                x=['Predição negativa', 'Predição positiva'],
-                y=['negativo', 'positivo']
-               )
-
-
-
-fig5.update_xaxes(side="bottom")
-st.plotly_chart(fig5)
-
-
-
-
-
-
-
-
-
-
-#o Cross_val_score serve para ver a relação entre a precisão e o recall
-rf_cv = cross_val_score(rf_pipeline,X_train_resh,y_train_resh,cv=10,scoring='f1')
 svm_cv = cross_val_score(svm_pipeline,X_train_resh,y_train_resh,cv=10,scoring='f1')
-logreg_cv = cross_val_score(logreg_pipeline,X_train_resh,y_train_resh,cv=10,scoring='f1')
 
-print('Mean f1 scores:')
-print('Random Forest mean :',rf_cv.mean())
-print('SVM mean :',svm_cv.mean())
-print('Logistic Regression mean :',logreg_cv.mean())
+matrix(svmcm, 'Support Vector Machines', svm_cv)
+
 
 #classificador
 colors = ["lightgray","lightgray","#0f4c81"]
@@ -173,10 +135,4 @@ fi_random_florest = rf_feat_importance(rf_pipeline['RF'], X)
 fig6 = px.bar(fi_random_florest, y='Importance', x='Feature',
             title="Feature Importance")
 st.plotly_chart(fig6)
-
-
-
-
-
-
 
