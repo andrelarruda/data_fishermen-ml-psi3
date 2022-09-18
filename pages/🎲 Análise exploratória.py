@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from utils.data import Data
 import plotly.figure_factory as ff
+import plotly.graph_objects as go
 import plotly.express as px
 
 
@@ -13,10 +14,25 @@ st.set_page_config(page_title="Stroke Analysis", page_icon=":chart:")
 class ExploratoryAnalysis:
     def __init__(self):
         self.data = Data().get_data()
-
+    
+    #Dados de AVC para os gráficos BoxPlots
     def get_stroke_data(self):
-        return self.data.loc[self.data["stroke"]==1]
+        return self.data
 
+    #Dados de AVC para os gráficos Distplots
+    def get_dist_stroke_data(self, column):
+        return self.data.loc[self.data["stroke"] == 1][column]
+    def get_dist_nostroke_data(self, column):
+        return self.data.loc[self.data["stroke"] == 0][column]
+
+    def distplot(self, hist_data, layoutTitle):
+        group_labels = ['Sem AVC', 'Com AVC']
+        colors = ['#2BCDC1', '#ff0000']
+
+        fig = ff.create_distplot(hist_data, group_labels, colors = colors, show_curve = True)
+        fig.update(layout_title_text = layoutTitle)
+        
+        st.plotly_chart(fig, use_container_width=True)    
     
     def exploratory_analysis(self):
         st.header("Análise exploratória")
@@ -27,69 +43,51 @@ class ExploratoryAnalysis:
         st.subheader("Idade")
         st.text_area(label="", value="Abaixo temos um gráfico demográfico do parâmetro idade. É possível perceber que a maioria das idades dos indivíduos participantes da pesquisa está distribuída entre 59 e 78 anos, porém podemos notar ainda a presença de alguns valores discrepantes inferiores. Estes valores representam indivíduos que tiveram AVC com idade de 1 e 14 anos. Embora a ocorrência de AVC em crianças seja rara, é possível. Estudos mostram que o AVC pode acometer até 0,013% de crianças. Portanto os valores listados como outliers permanecem relevantes para o estudo.", height=200)
         data = self.get_stroke_data()
-        st.plotly_chart(px.box(data,y="age",x="stroke", labels={'stroke': 'AVC', 'age': 'Idade' }))
+        st.plotly_chart(px.box(data, y = "age", x = "stroke", color = "stroke", color_discrete_sequence = ['#ff0000', '#2BCDC1'], labels={'stroke': 'AVC', 'age': 'Idade'}))
 
-    def age_stroke(self):
+    def age_distplot(self):
         st.subheader('AVC x Idade')
         st.text_area(label="", value="Abaixo temos um gráfico distributivo, tendo como parâmetro a idade dos pacientes saudáveis e os que tiveram a ocorrência de AVC. Fica notório uma maior tendência de casos em pessoas que possuem idade elevada.")
-        x1 = self.data.loc[self.data['stroke'] == 0]['age']
-        x2 = self.data.loc[self.data['stroke'] == 1]['age']
+        x1 = self.get_dist_nostroke_data('age')
+        x2 = self.get_dist_stroke_data('age')
         hist_data = [x1, x2]
 
-        group_labels = ['Sem AVC', 'Com AVC']
-        colors = ['#2BCDC1', '#ff0000']
-
-        fig = ff.create_distplot(hist_data, group_labels, colors = colors, show_curve = True)
-        fig.update(layout_title_text='Casos de AVC por idade')
-        
-        st.plotly_chart(fig, use_container_width=True)
+        self.distplot(hist_data, 'Casos de AVC por idade')
     
     def bmi_box_plot(self):
         st.subheader("IMC")
         st.text_area(label="", value="No caso do IMC, a maioria dos valores se concentra entre 27 e 32.5, com a presença de vários outliers, principalmente superiores. Com valor mínimo em 16.9, e valor máximo em 56.6. A mediana é 28.89, aproximadamente. Para os outliers, é possível verificar que são valores possíveis de IMC. Representam pessoas muito acima ou muito abaixo do peso.")
         data = self.get_stroke_data()
-        st.plotly_chart(px.box(data,y="bmi",x="stroke", labels={'stroke': 'AVC', 'bmi': 'Índice de Massa Corporal' }))
+        st.plotly_chart(px.box(data, y = "bmi", x = "stroke", color = "stroke", color_discrete_sequence = ['#ff0000', '#2BCDC1'], labels={'stroke': 'AVC', 'bmi': 'Índice de Massa Corporal'}))
 
-    def bmi_stroke(self):
+    def bmi_distplot(self):
         st.subheader('Distribuição e comparação IMC')
         st.text_area(label="", value="Ao analisar o gráfico da distirbuição de IMC, é perceptível que pessoas sobre-peso não possuem maior tendência a desenvolver AVC. No entanto, como maior parte da amostra encontra-se na região intermediária do gráfico, esse pode ser um dos fatores.")
-        x1 = self.data.loc[self.data['stroke'] == 0]['bmi']
-        x2 = self.data.loc[self.data['stroke'] == 1]['bmi']
+        x1 = self.get_dist_nostroke_data('bmi')
+        x2 = self.get_dist_stroke_data('bmi')
         hist_data = [x1, x2]
 
-        group_labels = ['Sem AVC', 'Com AVC']
-        colors = ['#2BCDC1', '#ff0000']
-
-        fig = ff.create_distplot(hist_data, group_labels, colors = colors, show_curve = True)
-        fig.update(layout_title_text='Gráfico distributivo IMC')
-        
-        st.plotly_chart(fig, use_container_width=True)
+        self.distplot(hist_data, 'Gráfico distributivo IMC')
 
     def avg_glucose_level_box_plot(self):
         st.subheader("Nível de glicose")
         data = self.get_stroke_data()
-        st.plotly_chart(px.box(data,y="avg_glucose_level",x="stroke", labels={'stroke': 'AVC', 'avg_glucose_level': 'Nível médio de glicose' }))
+        st.plotly_chart(px.box(data, y = "avg_glucose_level", x = "stroke", color = "stroke", color_discrete_sequence = ['#ff0000', '#2BCDC1'], labels={'stroke': 'AVC', 'avg_glucose_level': 'Nível médio de glicose' }))
 
-    def glucose_stroke(self):
+    def glucose_distplot(self):
         st.subheader('Distribuição e comparação Glicose')
         st.text_area(label="", value="Diferente do gráfico que analisa o IMC, o gráfico da glicose mostra uma tendência de casos em pacientes com a glicose elevada.")
-        x1 = self.data.loc[self.data['stroke'] == 0]['avg_glucose_level']
-        x2 = self.data.loc[self.data['stroke'] == 1]['avg_glucose_level']
+        x1 = self.get_dist_nostroke_data('avg_glucose_level')
+        x2 = self.get_dist_stroke_data('avg_glucose_level')
         hist_data = [x1, x2]
 
-        group_labels = ['Sem AVC', 'Com AVC']
-        colors = ['#2BCDC1', '#ff0000']
-
-        fig = ff.create_distplot(hist_data, group_labels, colors = colors, show_curve = True)
-        fig.update(layout_title_text='Gráfico distributivo Glicose')
-        
-        st.plotly_chart(fig, use_container_width=True)
+        self.distplot(hist_data, 'Gráfico distributivo glicose')
 
     def data_balancing(self):
-        st.subheader('Distribução das Ocorrências de AVC')
+        st.subheader('Distribuição das Ocorrências de AVC')
 
         distribution_stroke = self.data.stroke.value_counts()
-        st.plotly_chart(px.bar(distribution_stroke, orientation='v', x=['Não teve AVC', 'Teve AVC'], y='stroke', labels={ 'stroke': 'Número de Ocorrências', 'x': 'Categoria', '#3260a8': 'Não teve AVC', '#d92121': 'Teve AVC'}, color={'#3260a8': 'Não teve AVC', '#d92121': 'Teve AVC'} ))
+        st.plotly_chart(px.bar(distribution_stroke, orientation='v', x=['Não teve AVC', 'Teve AVC'], y='stroke', labels={ 'stroke': 'Número de Ocorrências', 'x': 'Categoria', '#ff0000': 'Teve AVC', '#2BCDC1': 'Não teve AVC'}, color={'#ff0000': 'Teve AVC', '#2BCDC1': 'Não teve AVC'} ))
 
         st.text_area(label="", value="O gráfico de distribuição nos permite ter uma visão geral da distribuição de ocorrências do AVC nos dados. Podemos perceber que existem mais casos que não houveram AVC, o que demonstra que esses dados estão desbalanceados. Portanto, para efetuar a classificação sobre esses dados, será necessário antes efetuar o seu balanceamento.", height=120)
 
@@ -133,9 +131,9 @@ exploratory_analysis_page = ExploratoryAnalysis()
 exploratory_analysis_page.exploratory_analysis()
 exploratory_analysis_page.data_balancing()
 exploratory_analysis_page.age_box_plot()
-exploratory_analysis_page.age_stroke()
+exploratory_analysis_page.age_distplot()
 exploratory_analysis_page.bmi_box_plot()
-exploratory_analysis_page.bmi_stroke()
+exploratory_analysis_page.bmi_distplot()
 exploratory_analysis_page.avg_glucose_level_box_plot()
-exploratory_analysis_page.glucose_stroke()
+exploratory_analysis_page.glucose_distplot()
 exploratory_analysis_page.scatter_plot()
