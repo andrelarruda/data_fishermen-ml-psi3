@@ -43,7 +43,7 @@ class ExploratoryAnalysis:
         st.subheader("Idade")
         st.text_area(label="", value="Abaixo temos um gráfico demográfico do parâmetro idade. É possível perceber que a maioria das idades dos indivíduos participantes da pesquisa está distribuída entre 59 e 78 anos, porém podemos notar ainda a presença de alguns valores discrepantes inferiores. Estes valores representam indivíduos que tiveram AVC com idade de 1 e 14 anos. Embora a ocorrência de AVC em crianças seja rara, é possível. Estudos mostram que o AVC pode acometer até 0,013% de crianças. Portanto os valores listados como outliers permanecem relevantes para o estudo.", height=200)
         data = self.get_stroke_data()
-        st.plotly_chart(px.box(data, y = "age", x = "stroke", color = "stroke", color_discrete_sequence = ['#ff0000', '#2BCDC1'], labels={'stroke': 'AVC', 'age': 'Idade'}))
+        st.plotly_chart(px.box(data, x = "stroke", y = "age", color = "stroke", color_discrete_sequence = ['#ff0000', '#2BCDC1'], labels={'stroke': 'AVC', 'age': 'Idade'}))
 
     def age_distplot(self):
         st.subheader('AVC x Idade')
@@ -87,7 +87,7 @@ class ExploratoryAnalysis:
         st.subheader('Distribuição das Ocorrências de AVC')
 
         distribution_stroke = self.data.stroke.value_counts()
-        st.plotly_chart(px.bar(distribution_stroke, orientation='v', x=['Não teve AVC', 'Teve AVC'], y='stroke', labels={ 'stroke': 'Número de Ocorrências', 'x': 'Categoria', '#ff0000': 'Teve AVC', '#2BCDC1': 'Não teve AVC'}, color={'#ff0000': 'Teve AVC', '#2BCDC1': 'Não teve AVC'} ))
+        st.plotly_chart(px.bar(distribution_stroke, orientation='v', x=['Não teve AVC', 'Teve AVC'], y='stroke', labels={ 'stroke': 'Número de Ocorrências', 'x': 'Categoria', '#2BCDC1': 'Não teve AVC', '#ff0000': 'Teve AVC'}, color={'#2BCDC1': 'Não teve AVC', '#ff0000': 'Teve AVC'} ))
 
         st.text_area(label="", value="O gráfico de distribuição nos permite ter uma visão geral da distribuição de ocorrências do AVC nos dados. Podemos perceber que existem mais casos que não houveram AVC, o que demonstra que esses dados estão desbalanceados. Portanto, para efetuar a classificação sobre esses dados, será necessário antes efetuar o seu balanceamento.", height=120)
 
