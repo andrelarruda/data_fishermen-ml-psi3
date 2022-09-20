@@ -15,6 +15,7 @@ from sklearn.model_selection import train_test_split,cross_val_score
 from sklearn.svm import SVC
 from sklearn.linear_model import LinearRegression,LogisticRegression
 from sklearn.metrics import plot_confusion_matrix, classification_report,confusion_matrix,f1_score, classification_report
+import eli5
 
 class Algorithms:
     def __init__(self):
@@ -108,9 +109,9 @@ class Algorithms:
         self.matrix(rfcm, 'Random Forest', dict_rf)
 
     def calculate_score_logistic_regression(self):
-        logreg_pipeline = Pipeline(steps = [('scale',StandardScaler()),('LR',LogisticRegression(random_state=42))])
-        logreg_pipeline.fit(self.x_train_resampled, self.y_train_resampled)
-        predictionsLR = logreg_pipeline.predict(self.x_test)
+        self.logreg_pipeline = Pipeline(steps = [('scale',StandardScaler()),('LR',LogisticRegression(random_state=42))])
+        self.logreg_pipeline.fit(self.x_train_resampled, self.y_train_resampled)
+        predictionsLR = self.logreg_pipeline.predict(self.x_test)
         lgrmc = confusion_matrix(self.y_test, predictionsLR)
         dict_lr = classification_report(self.y_test,predictionsLR,output_dict=True)
 
@@ -126,16 +127,14 @@ class Algorithms:
         self.matrix(svmcm, 'Support Vector Machines', dict_svc)
 
     def show_feature_importance_random_forest(self):
-        #classificador
-        colors = ["lightgray","lightgray","#0f4c81"]
-        colormap = matplotlib.colors.LinearSegmentedColormap.from_list("", colors)
+        st.subheader('Feature Importance:')
+        columns_ = ['gender', 'age', 'hypertension', 'heart_disease', 'work_type',
+       'avg_glucose_level', 'bmi']
 
-        #Obtendo a Feature importance do Random Forest
-        fi_random_florest = self.rf_feat_importance(self.rf_pipeline['RF'], self.x)
-
-        fig = px.bar(fi_random_florest, y='Importance', x='Feature',
-                    title="Feature Importance", labels={ 'Importance': 'Importância' })
-        st.plotly_chart(fig)
+        data = eli5.show_weights(self.logreg_pipeline.named_steps["LR"], feature_names=columns_).data
+        data = data.replace('filter: brightness(85%);', 'filter: brightness(85%); background-color: white;')
+        print(data)
+        st.components.v1.html(data, height = 500)
 
 algorithms_page = Algorithms()
 algorithms_page.plot_imbalanced_distribution_chart()
