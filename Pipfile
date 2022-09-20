@@ -17,6 +17,7 @@ xlrd = "*"
 openpyxl = "*"
 matplotlib="*"
 imbalanced-learn = "*"
+eli5 = "*"
 
 [dev-packages]
 
