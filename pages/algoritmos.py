@@ -1,4 +1,5 @@
 import pandas as pd
+import json
 from utils.data import Data
 import streamlit as st
 import numpy as np
@@ -13,7 +14,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split,cross_val_score
 from sklearn.svm import SVC
 from sklearn.linear_model import LinearRegression,LogisticRegression
-from sklearn.metrics import plot_confusion_matrix, classification_report,confusion_matrix
+from sklearn.metrics import plot_confusion_matrix, classification_report,confusion_matrix,f1_score, classification_report
 
 class Algorithms:
     def __init__(self):
@@ -80,10 +81,11 @@ class Algorithms:
 
     # Função para gerar matrizes de confusão
     def matrix(self, classifier, classifierName, score):
-        score = score.mean()
+        #score = score.mean()
         st.subheader('Matriz de Confusão ' + classifierName + ':')
-        st.text_area(label = "Mean f1 score:", value = classifierName + " mean: " + str(score),  height = 1)
-
+        #st.text_area(label = "Mean f1 score:", value = classifierName + " mean: " + str(score),  height = 1)
+        score.pop('accuracy')
+        st.table(score)
         fig = px.imshow(classifier, text_auto=True, aspect="auto", color_continuous_scale='ylgnbu',
                     labels=dict(x="Valores previstos ", y="Valores reais", color="Número de casos"),
                     x=['Predição negativa', 'Predição positiva'],
@@ -102,26 +104,26 @@ class Algorithms:
         self.rf_pipeline.fit(self.x_train_resampled, self.y_train_resampled)
         predictionsRF = self.rf_pipeline.predict(self.x_test)
         rfcm = confusion_matrix(self.y_test, predictionsRF)
-        rf_cv = cross_val_score(self.rf_pipeline, self.x_train_resampled, self.y_train_resampled, cv=10, scoring='f1')
-        self.matrix(rfcm, 'Random Forest', rf_cv)
+        dict_rf = classification_report(self.y_test,predictionsRF,output_dict=True)
+        self.matrix(rfcm, 'Random Forest', dict_rf)
 
     def calculate_score_logistic_regression(self):
         logreg_pipeline = Pipeline(steps = [('scale',StandardScaler()),('LR',LogisticRegression(random_state=42))])
         logreg_pipeline.fit(self.x_train_resampled, self.y_train_resampled)
         predictionsLR = logreg_pipeline.predict(self.x_test)
         lgrmc = confusion_matrix(self.y_test, predictionsLR)
-        logreg_cv = cross_val_score(logreg_pipeline, self.x_train_resampled, self.y_train_resampled, cv=10, scoring='f1')
+        dict_lr = classification_report(self.y_test,predictionsLR,output_dict=True)
 
-        self.matrix(lgrmc, 'Logistic Regression', logreg_cv)
+        self.matrix(lgrmc, 'Logistic Regression', dict_lr)
 
     def calculate_score_svm(self):
         svm_pipeline = Pipeline(steps = [('scale',StandardScaler()),('SVM',SVC(random_state=42))])
         svm_pipeline.fit(self.x_train_resampled, self.y_train_resampled)
         predictionsSVC=svm_pipeline.predict(self.x_test)
         svmcm=confusion_matrix(self.y_test, predictionsSVC)
-        svm_cv = cross_val_score(svm_pipeline, self.x_train_resampled, self.y_train_resampled, cv=10, scoring='f1')
+        dict_svc = classification_report(self.y_test,predictionsSVC,output_dict=True)
 
-        self.matrix(svmcm, 'Support Vector Machines', svm_cv)
+        self.matrix(svmcm, 'Support Vector Machines', dict_svc)
 
     def show_feature_importance_random_forest(self):
         #classificador
