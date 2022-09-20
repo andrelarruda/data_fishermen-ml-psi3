@@ -16,6 +16,7 @@ toml = "*"
 xlrd = "*"
 openpyxl = "*"
 matplotlib="*"
+imbalanced-learn = "*"
 
 [dev-packages]
 
