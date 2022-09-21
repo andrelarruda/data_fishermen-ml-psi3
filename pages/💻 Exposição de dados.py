@@ -85,7 +85,7 @@ class HomePage:
 
     def raw_data_table(self):
         st.subheader('Dados puros')
-        st.write(self.data)
+        st.write(self.data.head(10))
 
     def stroke_by_age_graphic(self):
         st.subheader('Idade')
