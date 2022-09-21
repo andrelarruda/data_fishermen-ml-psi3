@@ -152,3 +152,4 @@ xlrd==2.0.1
 
 zipp==3.8.1; python_version >= '3.7'
 
+mlxtend==0.21.0;
