@@ -1,8 +1,11 @@
+from audioop import cross
 import pandas as pd
 import json
 from utils.data import Data
 import streamlit as st
 import numpy as np
+from numpy import mean
+from numpy import std
 import plotly.express as px
 from utils.data import Data
 import matplotlib.pyplot as plt
@@ -12,10 +15,12 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler,LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split,cross_val_score
+from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.svm import SVC
 from sklearn.linear_model import LinearRegression,LogisticRegression
 from sklearn.metrics import plot_confusion_matrix, classification_report,confusion_matrix,f1_score, classification_report
 import eli5
+from mlxtend.evaluate import paired_ttest_5x2cv
 
 class Algorithms:
     def __init__(self):
@@ -114,7 +119,6 @@ class Algorithms:
         predictionsLR = self.logreg_pipeline.predict(self.x_test)
         lgrmc = confusion_matrix(self.y_test, predictionsLR)
         dict_lr = classification_report(self.y_test,predictionsLR,output_dict=True)
-
         self.matrix(lgrmc, 'Logistic Regression', dict_lr)
 
     def calculate_score_svm(self):
@@ -126,8 +130,8 @@ class Algorithms:
 
         self.matrix(svmcm, 'Support Vector Machines', dict_svc)
 
-    def show_feature_importance_random_forest(self):
-        st.subheader('Feature Importance:')
+    def show_feature_importance_logistic_regression(self):
+        st.subheader('Feature Importance para o Logistic Regression')
         columns_ = ['gender', 'age', 'hypertension', 'heart_disease', 'work_type',
        'avg_glucose_level', 'bmi']
 
@@ -136,12 +140,45 @@ class Algorithms:
         print(data)
         st.components.v1.html(data, height = 500)
 
+    def hypothesis_tests_for_best_algorithm(self):
+        st.subheader('Teste de hipótese para os algoritmos Random Forest e Logistic Regression')
+        description_text = "Vamos analisar se o algoritmo Logistic Regression (LR) realmente possui uma diferença na métrica de performance (recall), em comparação com o Random Forest (RF) para o nosso caso. Para isso vamos efetuar um teste de hipóteses comparando ambos os modelos. Vamos ainda definir o nível de significância em 5% (0.05). Para que rejeitemos a hipótese nula, o p_value dado pela função deve ser menor ou igual ao nível de significância. Caso contrário, nós falhamos em rejeitar a hipótese nula."
+        st.text_area(label='', value=description_text, height=200)
+        
+        # Calculates recall for Random Forest and LogisticRegression
+        cv1 = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
+        random_forest_scores = cross_val_score(self.rf_pipeline, self.x_train_resampled, self.y_train_resampled, scoring='recall', cv=cv1, n_jobs=1)
+        rf_mean = mean(random_forest_scores)
+        rf_standard_deviation = std(random_forest_scores)
+        st.write('Recall médio do Random Forest: %.3f (desvio padrão: %.3f)' %(rf_mean, rf_standard_deviation))
+        
+        logistic_regression_scores = cross_val_score(self.logreg_pipeline, self.x_train_resampled, self.y_train_resampled, scoring='recall', cv=cv1, n_jobs=1)
+        lr_mean = mean(logistic_regression_scores)
+        lr_standard_deviation = std(logistic_regression_scores)
+        st.write('Recall médio do Logistic Regression: %.3f (desvio padrão: %.3f)' %(lr_mean, lr_standard_deviation))
+
+        # check if difference between algorithms is real
+        st.subheader('Efetuando o teste')
+        t_statistics, p_value = paired_ttest_5x2cv(estimator1=self.rf_pipeline, estimator2=self.logreg_pipeline, X=self.x_train_resampled, y=self.y_train_resampled, scoring='accuracy', random_seed=1)
+        alpha = 0.05
+        h0 = 'Os algoritmos LR e RF provavelmente tem a mesma performance.'
+        h1 = 'Os algoritmos LR e RF provavelmente não possuem a mesma performance.'
+        st.write("Nível de significância (alpha): %.2f" %(alpha))
+        st.write("Hipótese nula (H0): %s" %(h0))
+        st.write("Hipótese alternativa (H1): %s" %(h1))
+        st.write("p_value = %.5f" %(p_value))
+        if p_value <= alpha:
+            st.write('Como o p_value foi menor ou igual ao nível de significância, então a hipótese nula foi rejeitada. %s Logo, um algoritmo é mais relevante que o outro.' %(h1))
+        else:
+            st.write('O p_value foi maior que o nível de significância, logo, falhamos em rejeitar a hipótese nula. Então, %s' %(h0))
+
 algorithms_page = Algorithms()
 algorithms_page.plot_imbalanced_distribution_chart()
 algorithms_page.plot_balanced_distribution_chart()
 algorithms_page.calculate_score_random_forest()
 algorithms_page.calculate_score_logistic_regression()
 algorithms_page.calculate_score_svm()
-algorithms_page.show_feature_importance_random_forest()
+algorithms_page.show_feature_importance_logistic_regression()
+algorithms_page.hypothesis_tests_for_best_algorithm()
 
 
