@@ -146,7 +146,7 @@ class Algorithms:
         st.text_area(label='', value=description_text, height=200)
         
         # Calculates recall for Random Forest and LogisticRegression
-        cv1 = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
+        cv1 = RepeatedStratifiedKFold(n_splits=2, n_repeats=5, random_state=1)
         random_forest_scores = cross_val_score(self.rf_pipeline, self.x_train_resampled, self.y_train_resampled, scoring='recall', cv=cv1, n_jobs=1)
         rf_mean = mean(random_forest_scores)
         rf_standard_deviation = std(random_forest_scores)
