@@ -142,7 +142,7 @@ class Algorithms:
 
     def hypothesis_tests_for_best_algorithm(self):
         st.subheader('Teste de hipótese para os algoritmos Random Forest e Logistic Regression')
-        description_text = "Vamos analisar se o algoritmo Logistic Regression (LR) realmente possui uma diferença na métrica de performance (recall), em comparação com o Random Forest (RF) para o nosso caso. Para isso vamos efetuar um teste de hipóteses comparando ambos os modelos. Vamos ainda definir o nível de significância em 5% (0.05). Para que rejeitemos a hipótese nula, o p_value dado pela função deve ser menor ou igual ao nível de significância. Caso contrário, nós falhamos em rejeitar a hipótese nula."
+        description_text = "Vamos analisar se o algoritmo Logistic Regression (LR) realmente possui uma diferença na métrica de performance (recall), em comparação com o Random Forest (RF) para o nosso caso. Para isso vamos efetuar um teste de hipóteses comparando ambos os modelos. Vamos ainda definir o nível de significância em 5% (0.05). Para que rejeitemos a hipótese nula, o p-value (probability value) dado pela função deve ser menor ou igual ao nível de significância. Caso contrário, nós falhamos em rejeitar a hipótese nula."
         st.text_area(label='', value=description_text, height=200)
         
         # Calculates recall for Random Forest and LogisticRegression
@@ -166,11 +166,11 @@ class Algorithms:
         st.write("Nível de significância (alpha): %.2f" %(alpha))
         st.write("Hipótese nula (H0): %s" %(h0))
         st.write("Hipótese alternativa (H1): %s" %(h1))
-        st.write("p_value = %.5f" %(p_value))
+        st.write("Probability value = %.5f" %(p_value))
         if p_value <= alpha:
-            st.write('Como o p_value foi menor ou igual ao nível de significância, então a hipótese nula foi rejeitada. %s Logo, um algoritmo é mais relevante que o outro.' %(h1))
+            st.write('Como o p-value foi menor ou igual ao nível de significância, então a hipótese nula foi rejeitada. %s Logo, um algoritmo é mais relevante que o outro.' %(h1))
         else:
-            st.write('O p_value foi maior que o nível de significância, logo, falhamos em rejeitar a hipótese nula. Então, %s' %(h0))
+            st.write('O p-value foi maior que o nível de significância, logo, falhamos em rejeitar a hipótese nula. Então, %s' %(h0))
 
 algorithms_page = Algorithms()
 algorithms_page.plot_imbalanced_distribution_chart()
