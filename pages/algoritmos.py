@@ -166,7 +166,7 @@ class Algorithms:
         st.write("Nível de significância (alpha): %.2f" %(alpha))
         st.write("Hipótese nula (H0): %s" %(h0))
         st.write("Hipótese alternativa (H1): %s" %(h1))
-        st.write("Probability value = %.5f" %(p_value))
+        st.write("Valor de probabilidade (p-value) = %.5f" %(p_value))
         if p_value <= alpha:
             st.write('Como o p-value foi menor ou igual ao nível de significância, então a hipótese nula foi rejeitada. %s Logo, um algoritmo é mais relevante que o outro.' %(h1))
         else:
