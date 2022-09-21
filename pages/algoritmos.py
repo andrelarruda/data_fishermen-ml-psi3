@@ -19,6 +19,7 @@ from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.svm import SVC
 from sklearn.linear_model import LinearRegression,LogisticRegression
 from sklearn.metrics import plot_confusion_matrix, classification_report,confusion_matrix,f1_score, classification_report
+from sklearn.metrics import accuracy_score, recall_score, roc_auc_score, precision_score, f1_score
 import eli5
 from mlxtend.evaluate import paired_ttest_5x2cv
 
@@ -42,7 +43,46 @@ class Algorithms:
         df['ever_married'] = df['ever_married'].replace({'Yes':1,'No':0}).astype(np.uint8)
 
         return df
+    def get_rf_metrics(self):
 
+        rf = RandomForestClassifier(max_features=2,n_estimators=100,bootstrap=True)
+
+        rf.fit(self.x_train_resampled,self.y_train_resampled)
+
+        rfc_tuned_pred = rf.predict(self.x_test)
+
+        print(classification_report(self.y_test,rfc_tuned_pred))
+
+        print('Accuracy Score: ',accuracy_score(self.y_test,rfc_tuned_pred))
+        print('F1 Score: ',f1_score(self.y_test,rfc_tuned_pred))
+    
+    def get_lr_metrics(self):
+
+        
+
+        logreg_pipeline = Pipeline(steps = [('scale',StandardScaler()),('LR',LogisticRegression(C=0.1,penalty='l2',random_state=42))])
+
+        logreg_pipeline.fit(self.x_train_resampled,self.y_train_resampled)
+
+        logreg_tuned_pred   = logreg_pipeline.predict(self.x_test)
+
+        print(classification_report(self.y_test,logreg_tuned_pred))
+        print('Accuracy Score: ',accuracy_score(self.y_test,logreg_tuned_pred))
+        print('F1 Score: ',f1_score(self.y_test,logreg_tuned_pred))
+                
+    def get_svm_metrics(self):
+
+        svm_pipeline = Pipeline(steps = [('scale',StandardScaler()),('SVM',SVC(C=1000,gamma=0.01,kernel='rbf',random_state=42))])
+
+        svm_pipeline.fit(self.x_train_resampled,self.y_train_resampled)
+
+        svm_tuned_pred   = svm_pipeline.predict(self.x_test)
+
+
+        print(classification_report(self.y_test,svm_tuned_pred))
+        print('Accuracy Score: ',accuracy_score(self.y_test,svm_tuned_pred))
+        print('F1 Score: ',f1_score(self.y_test,svm_tuned_pred))
+    
     def get_train_and_test_data(self):
         self.data = self.get_updated_data()
         # Definindo os conjuntos de dados de entrada e saida
@@ -51,7 +91,7 @@ class Algorithms:
 
         # obtendo os dados de treino e teste
         return train_test_split(self.x, self.y, train_size=0.3, random_state=42)
-
+    
     def get_balanced_dataframe(self):
         x_train, self.x_test, y_train, self.y_test = self.get_train_and_test_data()
         
@@ -180,5 +220,7 @@ algorithms_page.calculate_score_logistic_regression()
 algorithms_page.calculate_score_svm()
 algorithms_page.show_feature_importance_logistic_regression()
 algorithms_page.hypothesis_tests_for_best_algorithm()
-
+algorithms_page.get_rf_metrics()
+algorithms_page.get_lr_metrics()
+algorithms_page.get_svm_metrics()
 
