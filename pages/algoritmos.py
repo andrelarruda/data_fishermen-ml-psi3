@@ -18,6 +18,7 @@ from sklearn.model_selection import train_test_split,cross_val_score
 from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.svm import SVC
 from sklearn.linear_model import LinearRegression,LogisticRegression
+from xgboost import XGBClassifier
 from sklearn.metrics import plot_confusion_matrix, classification_report,confusion_matrix,f1_score, classification_report
 from sklearn.metrics import accuracy_score, recall_score, roc_auc_score, precision_score, f1_score
 import eli5
@@ -170,6 +171,16 @@ class Algorithms:
 
         self.matrix(svmcm, 'Support Vector Machines', dict_svc)
 
+    def calculate_score_xgboost(self):
+        xgboost_pipeline = Pipeline(steps = [('scale',StandardScaler()),('XGBoost',XGBClassifier(random_state=42))])
+        xgboost_pipeline.fit(self.x_train_resampled, self.y_train_resampled)
+        
+        xgboost_predictions = xgboost_pipeline.predict(self.x_test)
+        xgb_cm = confusion_matrix(self.y_test, xgboost_predictions)
+        dict_xgb = classification_report(self.y_test, xgboost_predictions, output_dict=True)
+
+        self.matrix(xgb_cm, 'XGBoost', dict_xgb)
+
     def show_feature_importance_logistic_regression(self):
         st.subheader('Feature Importance para o Logistic Regression')
         columns_ = ['gender', 'age', 'hypertension', 'heart_disease', 'work_type',
@@ -218,6 +229,7 @@ algorithms_page.plot_balanced_distribution_chart()
 algorithms_page.calculate_score_random_forest()
 algorithms_page.calculate_score_logistic_regression()
 algorithms_page.calculate_score_svm()
+algorithms_page.calculate_score_xgboost()
 algorithms_page.show_feature_importance_logistic_regression()
 algorithms_page.hypothesis_tests_for_best_algorithm()
 algorithms_page.get_rf_metrics()
