@@ -15,12 +15,12 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler,LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split,cross_val_score
-from sklearn.model_selection import RepeatedStratifiedKFold
+from sklearn.model_selection import RepeatedStratifiedKFold, GridSearchCV, RandomizedSearchCV
 from sklearn.svm import SVC
 from sklearn.linear_model import LinearRegression,LogisticRegression
 from xgboost import XGBClassifier
 from sklearn.metrics import plot_confusion_matrix, classification_report,confusion_matrix,f1_score, classification_report
-from sklearn.metrics import accuracy_score, recall_score, roc_auc_score, precision_score, f1_score
+from sklearn.metrics import accuracy_score, recall_score, roc_auc_score, precision_score, f1_score, roc_curve, auc
 import eli5
 from mlxtend.evaluate import paired_ttest_5x2cv
 
@@ -145,8 +145,8 @@ class Algorithms:
     def rf_feat_importance(self, m, df):
         return pd.DataFrame({'Feature' : df.columns, 'Importance' : m.feature_importances_}).sort_values('Importance', ascending=False)
 
-    def calculate_score_random_forest(self):
-        self.rf_pipeline = Pipeline(steps = [('scale',StandardScaler()),('RF',RandomForestClassifier(random_state=42))])
+    def calculate_score_random_forest(self):        
+        self.rf_pipeline = Pipeline(steps = [('scale',StandardScaler()),('RF',RandomForestClassifier(random_state=42, n_estimators=750, min_samples_split=3, min_samples_leaf=3, max_features='sqrt', max_depth=2, bootstrap=True))])
 
         self.rf_pipeline.fit(self.x_train_resampled, self.y_train_resampled)
         predictionsRF = self.rf_pipeline.predict(self.x_test)
@@ -172,14 +172,78 @@ class Algorithms:
         self.matrix(svmcm, 'Support Vector Machines', dict_svc)
 
     def calculate_score_xgboost(self):
-        xgboost_pipeline = Pipeline(steps = [('scale',StandardScaler()),('XGBoost',XGBClassifier(random_state=42))])
+        xgboost_pipeline = Pipeline(steps = [('scale',StandardScaler()),('XGBoost',XGBClassifier(random_state=23, max_depth=5, learning_rate=0.0005, n_estimators=170, colsample_bytree=0.007))])
         xgboost_pipeline.fit(self.x_train_resampled, self.y_train_resampled)
-        
+
         xgboost_predictions = xgboost_pipeline.predict(self.x_test)
         xgb_cm = confusion_matrix(self.y_test, xgboost_predictions)
         dict_xgb = classification_report(self.y_test, xgboost_predictions, output_dict=True)
 
         self.matrix(xgb_cm, 'XGBoost', dict_xgb)
+
+    def tune_hyperparameters(self, algorithm):
+        n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
+        max_features = ['auto', 'sqrt']
+        max_depth = [int(x) for x in np.linspace(10, 110, num = 11)]
+        max_depth.append(None)
+        min_samples_split = [2, 5, 10]
+        min_samples_leaf = [1, 2, 4]
+        bootstrap = [True, False]
+
+        random_state = [x for x in range(1, 44)]
+        # Create the random grid
+        params2 = {'n_estimators': n_estimators,
+                    'max_features': max_features,
+                    'max_depth': max_depth,
+                    'min_samples_split': min_samples_split,
+                    'min_samples_leaf': min_samples_leaf,
+                    'bootstrap': bootstrap,
+                    'random_state': random_state,
+        }
+
+        if algorithm is 'rf':
+            rf_random_search = RandomizedSearchCV(estimator=RandomForestClassifier(), param_distributions=params2, scoring='recall', cv=3, n_iter=200, verbose=1, random_state=42, n_jobs=-1)
+            rf_random_search.fit(self.x_train_resampled, self.y_train_resampled)
+
+            st.write("Best parameters:", rf_random_search.best_params_)
+            st.write("Lowest RMSE: ", (-rf_random_search.best_score_)**(1/2.0))
+        elif algorithm is 'lr':
+            lr_random_search = RandomizedSearchCV(estimator=XGBClassifier(), param_distributions=params, scoring='recall', cv=3, n_iter=100, verbose=1, random_state=42, n_jobs=-1)
+            lr_random_search.fit(self.x_train_resampled, self.y_train_resampled)
+
+            st.write("Best parameters:", lr_random_search.best_params_)
+            st.write("Lowest RMSE: ", (-lr_random_search.best_score_)**(1/2.0))
+        elif algorithm is 'svm':
+            svm_random_search = RandomizedSearchCV(estimator=XGBClassifier(), param_distributions=params, scoring='recall', n_iter=60, verbose=1)
+            svm_random_search.fit(self.x_train_resampled, self.y_train_resampled)
+
+            st.write("Best parameters:", svm_random_search.best_params_)
+            st.write("Lowest RMSE: ", (-svm_random_search.best_score_)**(1/2.0))
+        elif algorithm is 'xgb':
+            randomSearch = RandomizedSearchCV(estimator=XGBClassifier(), param_distributions=params, scoring='recall', n_iter=60, verbose=1)
+            randomSearch.fit(self.x_train_resampled, self.y_train_resampled)
+
+            st.write("Best parameters:", randomSearch.best_params_)
+            st.write("Lowest RMSE: ", (-randomSearch.best_score_)**(1/2.0))
+
+    def tune_hyperparameters_using_grid_search(self):
+        params = {
+            'random_state' : [10, 23, 38, 42, 50],
+            'max_depth' : [7, 8, 10, 12, 15, 20],
+            'learning_rate' : [0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 0.8, 0.9],
+            'n_estimators' : [50, 150, 300, 400, 600, 700],
+            'colsample_bytree' : [0.08, 0.009, 0.8, 0.9, 1.0],
+            'min_samples_split': [2, 4, 8, 10, 12],
+            # 'min_samples_leaf' : [1, 2, 3],
+        }
+
+        grid_GBC = GridSearchCV(estimator=XGBClassifier(), param_grid = params, cv = 2, n_jobs=-1)
+        grid_GBC.fit(self.x_train_resampled, self.y_train_resampled)
+        
+        st.write(" Results from Grid Search " )
+        st.write("The best estimator across ALL searched params: ",grid_GBC.best_estimator_)
+        st.write("The best score across ALL searched params: ",grid_GBC.best_score_)
+        st.write("The best parameters across ALL searched params: ",grid_GBC.best_params_)
 
     def show_feature_importance_logistic_regression(self):
         st.subheader('Feature Importance para o Logistic Regression')
