@@ -155,7 +155,8 @@ class Algorithms:
         self.matrix(rfcm, 'Random Forest', dict_rf)
 
     def calculate_score_logistic_regression(self):
-        self.logreg_pipeline = Pipeline(steps = [('scale',StandardScaler()),('LR',LogisticRegression(random_state=42))])
+        cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
+        self.logreg_pipeline = Pipeline(steps = [('scale',StandardScaler()),('LR',LogisticRegression(solver='newton-cg', penalty='l2', C=0.0000000001))])
         self.logreg_pipeline.fit(self.x_train_resampled, self.y_train_resampled)
         predictionsLR = self.logreg_pipeline.predict(self.x_test)
         lgrmc = confusion_matrix(self.y_test, predictionsLR)
@@ -181,52 +182,61 @@ class Algorithms:
 
         self.matrix(xgb_cm, 'XGBoost', dict_xgb)
 
-    def tune_hyperparameters(self, algorithm):
-        n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
-        max_features = ['auto', 'sqrt']
-        max_depth = [int(x) for x in np.linspace(10, 110, num = 11)]
-        max_depth.append(None)
-        min_samples_split = [2, 5, 10]
-        min_samples_leaf = [1, 2, 4]
-        bootstrap = [True, False]
-
-        random_state = [x for x in range(1, 44)]
-        # Create the random grid
-        params2 = {'n_estimators': n_estimators,
+    def tune_hyperparameters(self, algorithm, cv):
+        if algorithm == 'rf':
+            n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
+            max_features = ['auto', 'sqrt']
+            max_depth = [int(x) for x in np.linspace(10, 110, num = 11)]
+            max_depth.append(None)
+            min_samples_split = [2, 5, 10]
+            min_samples_leaf = [1, 2, 4]
+            bootstrap = [True, False]
+            random_state = [x for x in range(1, 44)]
+            params = {'n_estimators': n_estimators,
                     'max_features': max_features,
                     'max_depth': max_depth,
                     'min_samples_split': min_samples_split,
                     'min_samples_leaf': min_samples_leaf,
                     'bootstrap': bootstrap,
                     'random_state': random_state,
-        }
-
-        if algorithm is 'rf':
-            rf_random_search = RandomizedSearchCV(estimator=RandomForestClassifier(), param_distributions=params2, scoring='recall', cv=3, n_iter=200, verbose=1, random_state=42, n_jobs=-1)
+            }
+            rf_random_search = RandomizedSearchCV(estimator=RandomForestClassifier(), param_distributions=params, scoring='recall', cv=3, n_iter=200, verbose=1, random_state=42, n_jobs=-1)
             rf_random_search.fit(self.x_train_resampled, self.y_train_resampled)
 
             st.write("Best parameters:", rf_random_search.best_params_)
             st.write("Lowest RMSE: ", (-rf_random_search.best_score_)**(1/2.0))
-        elif algorithm is 'lr':
-            lr_random_search = RandomizedSearchCV(estimator=XGBClassifier(), param_distributions=params, scoring='recall', cv=3, n_iter=100, verbose=1, random_state=42, n_jobs=-1)
-            lr_random_search.fit(self.x_train_resampled, self.y_train_resampled)
+        elif algorithm == 'lr':
+            model = LogisticRegression()
+            solvers = ['newton-cg', 'lbfgs', 'liblinear']
+            penalty = ['l2']
+            c_values = [100, 10, 1.0, 0.1, 0.01]
+            # define grid search
+            rs_dict = dict(solver=solvers,penalty=penalty,C=c_values)
+            lr_random_search = RandomizedSearchCV(estimator=model, param_distributions=rs_dict, n_jobs=-1, cv=cv, scoring='recall', error_score=0, n_iter=100)
+            lr_random_result = lr_random_search.fit(self.x_train_resampled, self.y_train_resampled)
 
-            st.write("Best parameters:", lr_random_search.best_params_)
-            st.write("Lowest RMSE: ", (-lr_random_search.best_score_)**(1/2.0))
-        elif algorithm is 'svm':
+            # summarize results
+            print("Best: %f using %s" % (lr_random_result.best_score_, lr_random_result.best_params_))
+            means = lr_random_result.cv_results_['mean_test_score']
+            stds = lr_random_result.cv_results_['std_test_score']
+            params = lr_random_result.cv_results_['params']
+            for mean, stdev, param in zip(means, stds, params):
+                print("%f (%f) with: %r" % (mean, stdev, param))
+
+        elif algorithm == 'svm':
             svm_random_search = RandomizedSearchCV(estimator=XGBClassifier(), param_distributions=params, scoring='recall', n_iter=60, verbose=1)
             svm_random_search.fit(self.x_train_resampled, self.y_train_resampled)
 
             st.write("Best parameters:", svm_random_search.best_params_)
             st.write("Lowest RMSE: ", (-svm_random_search.best_score_)**(1/2.0))
-        elif algorithm is 'xgb':
+        elif algorithm == 'xgb':
             randomSearch = RandomizedSearchCV(estimator=XGBClassifier(), param_distributions=params, scoring='recall', n_iter=60, verbose=1)
             randomSearch.fit(self.x_train_resampled, self.y_train_resampled)
 
             st.write("Best parameters:", randomSearch.best_params_)
             st.write("Lowest RMSE: ", (-randomSearch.best_score_)**(1/2.0))
 
-    def tune_hyperparameters_using_grid_search(self):
+    def tune_hyperparameters_using_grid_search(self, algorithm, cv):
         params = {
             'random_state' : [10, 23, 38, 42, 50],
             'max_depth' : [7, 8, 10, 12, 15, 20],
@@ -237,13 +247,33 @@ class Algorithms:
             # 'min_samples_leaf' : [1, 2, 3],
         }
 
-        grid_GBC = GridSearchCV(estimator=XGBClassifier(), param_grid = params, cv = 2, n_jobs=-1)
-        grid_GBC.fit(self.x_train_resampled, self.y_train_resampled)
-        
-        st.write(" Results from Grid Search " )
-        st.write("The best estimator across ALL searched params: ",grid_GBC.best_estimator_)
-        st.write("The best score across ALL searched params: ",grid_GBC.best_score_)
-        st.write("The best parameters across ALL searched params: ",grid_GBC.best_params_)
+        if algorithm == 'rf':
+            model = RandomForestClassifier()
+        elif algorithm == 'lr':
+            model = LogisticRegression()
+            solvers = ['newton-cg', 'lbfgs', 'liblinear']
+            penalty = ['l2']
+            c_values = [100, 10, 1.0, 0.1, 0.01]
+            # define grid search
+            rs_dict = dict(solver=solvers,penalty=penalty,C=c_values)
+            lr_random_search = GridSearchCV(estimator=model, param_grid=rs_dict, n_jobs=-1, cv=cv, scoring='recall', error_score=0)
+            lr_random_result = lr_random_search.fit(self.x_train_resampled, self.y_train_resampled)
+
+            # summarize results
+            st.write("Best: %f using %s" % (lr_random_result.best_score_, lr_random_result.best_params_))
+            means = lr_random_result.cv_results_['mean_test_score']
+            stds = lr_random_result.cv_results_['std_test_score']
+            params = lr_random_result.cv_results_['params']
+            for mean, stdev, param in zip(means, stds, params):
+                st.write("%f (%f) with: %r" % (mean, stdev, param))
+        elif algorithm == 'svm':
+            model = SVC()
+        elif algorithm == 'xgb':
+            model = XGBClassifier()
+            # st.write(" Results from Grid Search " )
+            # st.write("The best estimator across ALL searched params: ",grid_GBC.best_estimator_)
+            # st.write("The best score across ALL searched params: ",grid_GBC.best_score_)
+            # st.write("The best parameters across ALL searched params: ",grid_GBC.best_params_)
 
     def show_feature_importance_logistic_regression(self):
         st.subheader('Feature Importance para o Logistic Regression')
@@ -288,15 +318,15 @@ class Algorithms:
             st.write('O p-value foi maior que o nível de significância, logo, falhamos em rejeitar a hipótese nula. Então, %s' %(h0))
 
 algorithms_page = Algorithms()
-algorithms_page.plot_imbalanced_distribution_chart()
-algorithms_page.plot_balanced_distribution_chart()
-algorithms_page.calculate_score_random_forest()
+# algorithms_page.plot_imbalanced_distribution_chart()
+# algorithms_page.plot_balanced_distribution_chart()
+# algorithms_page.calculate_score_random_forest()
 algorithms_page.calculate_score_logistic_regression()
-algorithms_page.calculate_score_svm()
-algorithms_page.calculate_score_xgboost()
-algorithms_page.show_feature_importance_logistic_regression()
-algorithms_page.hypothesis_tests_for_best_algorithm()
-algorithms_page.get_rf_metrics()
-algorithms_page.get_lr_metrics()
-algorithms_page.get_svm_metrics()
+# algorithms_page.calculate_score_svm()
+# algorithms_page.calculate_score_xgboost()
+# algorithms_page.show_feature_importance_logistic_regression()
+# algorithms_page.hypothesis_tests_for_best_algorithm()
+# algorithms_page.get_rf_metrics()
+# algorithms_page.get_lr_metrics()
+# algorithms_page.get_svm_metrics()
 
