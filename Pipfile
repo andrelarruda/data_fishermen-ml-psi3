@@ -18,6 +18,7 @@ openpyxl = "*"
 matplotlib="*"
 imbalanced-learn = "*"
 eli5 = "*"
+xgboost = "*"
 
 [dev-packages]
 

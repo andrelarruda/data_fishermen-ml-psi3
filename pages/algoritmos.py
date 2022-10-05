@@ -52,10 +52,10 @@ class Algorithms:
 
         rfc_tuned_pred = rf.predict(self.x_test)
 
-        print(classification_report(self.y_test,rfc_tuned_pred))
+        # print(classification_report(self.y_test,rfc_tuned_pred))
 
-        print('Accuracy Score: ',accuracy_score(self.y_test,rfc_tuned_pred))
-        print('F1 Score: ',f1_score(self.y_test,rfc_tuned_pred))
+        # print('Accuracy Score: ',accuracy_score(self.y_test,rfc_tuned_pred))
+        # print('F1 Score: ',f1_score(self.y_test,rfc_tuned_pred))
     
     def get_lr_metrics(self):
 
@@ -67,9 +67,9 @@ class Algorithms:
 
         logreg_tuned_pred   = logreg_pipeline.predict(self.x_test)
 
-        print(classification_report(self.y_test,logreg_tuned_pred))
-        print('Accuracy Score: ',accuracy_score(self.y_test,logreg_tuned_pred))
-        print('F1 Score: ',f1_score(self.y_test,logreg_tuned_pred))
+        # print(classification_report(self.y_test,logreg_tuned_pred))
+        # print('Accuracy Score: ',accuracy_score(self.y_test,logreg_tuned_pred))
+        # print('F1 Score: ',f1_score(self.y_test,logreg_tuned_pred))
                 
     def get_svm_metrics(self):
 
@@ -80,14 +80,15 @@ class Algorithms:
         svm_tuned_pred   = svm_pipeline.predict(self.x_test)
 
 
-        print(classification_report(self.y_test,svm_tuned_pred))
-        print('Accuracy Score: ',accuracy_score(self.y_test,svm_tuned_pred))
-        print('F1 Score: ',f1_score(self.y_test,svm_tuned_pred))
+        # print(classification_report(self.y_test,svm_tuned_pred))
+        # print('Accuracy Score: ',accuracy_score(self.y_test,svm_tuned_pred))
+        # print('F1 Score: ',f1_score(self.y_test,svm_tuned_pred))
     
     def get_train_and_test_data(self):
         self.data = self.get_updated_data()
         # Definindo os conjuntos de dados de entrada e saida
-        self.x = self.data[['gender','age','hypertension','heart_disease','work_type','avg_glucose_level','bmi']]
+        self.columns = ['gender','age','hypertension','heart_disease','work_type','avg_glucose_level','bmi','smoking_status','ever_married','residence_type']
+        self.x = self.data[self.columns]
         self.y = self.data['stroke']
 
         # obtendo os dados de treino e teste
@@ -142,8 +143,8 @@ class Algorithms:
         fig.update_xaxes(side="bottom")
         st.plotly_chart(fig)
 
-    def rf_feat_importance(self, m, df):
-        return pd.DataFrame({'Feature' : df.columns, 'Importance' : m.feature_importances_}).sort_values('Importance', ascending=False)
+    # def rf_feat_importance(self, m, df):
+    #     return pd.DataFrame({'Feature' : df.columns, 'Importance' : m.feature_importances_}).sort_values('Importance', ascending=False)
 
     def calculate_score_random_forest(self):
         self.rf_pipeline = Pipeline(steps = [('scale',StandardScaler()),('RF',RandomForestClassifier(random_state=42, n_estimators=750, min_samples_split=3, min_samples_leaf=3, max_features='sqrt', max_depth=2, bootstrap=True))])
@@ -167,10 +168,10 @@ class Algorithms:
     def calculate_score_svm(self):
         # cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
         # self.tune_hyperparameters('svm', cv)
-        svm_pipeline = Pipeline(steps = [('scale',StandardScaler()),('SVM',SVC(C=0.01, gamma='scale', kernel='sigmoid'))])
-        svm_pipeline.fit(self.x_train_resampled, self.y_train_resampled)
-        predictionsSVC=svm_pipeline.predict(self.x_test)
-        svmcm=confusion_matrix(self.y_test, predictionsSVC)
+        self.svm_pipeline = Pipeline(steps = [('scale',StandardScaler()),('SVM',SVC(C=0.01, gamma='scale', kernel='sigmoid'))])
+        self.svm_pipeline.fit(self.x_train_resampled, self.y_train_resampled)
+        predictionsSVC = self.svm_pipeline.predict(self.x_test)
+        svmcm = confusion_matrix(self.y_test, predictionsSVC)
         dict_svc = classification_report(self.y_test,predictionsSVC,output_dict=True)
 
         self.matrix(svmcm, 'Support Vector Machines', dict_svc)
@@ -290,13 +291,10 @@ class Algorithms:
             # st.write("The best parameters across ALL searched params: ",grid_GBC.best_params_)
 
     def show_feature_importance_logistic_regression(self):
-        st.subheader('Feature Importance para o Logistic Regression')
-        columns_ = ['gender', 'age', 'hypertension', 'heart_disease', 'work_type',
-       'avg_glucose_level', 'bmi']
-
-        data = eli5.show_weights(self.logreg_pipeline.named_steps["LR"], feature_names=columns_).data
-        data = data.replace('filter: brightness(85%);', 'filter: brightness(85%); background-color: white;')
-        print(data)
+        st.subheader('Feature Importance para o SVM')
+        svm_pipeline = Pipeline(steps = [('scale',StandardScaler()),('SVM',SVC(C=0.01, gamma='scale', kernel='linear'))])
+        svm_pipeline.fit(self.x_train_resampled, self.y_train_resampled)
+        data = eli5.show_weights(svm_pipeline.named_steps["SVM"], feature_names=self.columns,top=None).data
         st.components.v1.html(data, height = 500)
 
     def hypothesis_tests_for_best_algorithm(self):
