@@ -132,7 +132,7 @@ class Algorithms:
         #score = score.mean()
         st.subheader('Matriz de Confusão ' + classifierName + ':')
         #st.text_area(label = "Mean f1 score:", value = classifierName + " mean: " + str(score),  height = 1)
-        score.pop('accuracy')
+        # score.pop('accuracy')
         st.table(score)
         fig = px.imshow(classifier, text_auto=True, aspect="auto", color_continuous_scale='ylgnbu',
                     labels=dict(x="Valores previstos ", y="Valores reais", color="Número de casos"),
@@ -148,7 +148,8 @@ class Algorithms:
 
     def calculate_score_random_forest(self):
         self.rf_pipeline = Pipeline(steps = [('scale',StandardScaler()),('RF',RandomForestClassifier(random_state=42, n_estimators=750, min_samples_split=3, min_samples_leaf=3, max_features='sqrt', max_depth=2, bootstrap=True))])
-
+        # self.tune_hyperparameters('rf', RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1))
+        # return
         self.rf_pipeline.fit(self.x_train_resampled, self.y_train_resampled)
         predictionsRF = self.rf_pipeline.predict(self.x_test)
         rfcm = confusion_matrix(self.y_test, predictionsRF)
@@ -206,7 +207,7 @@ class Algorithms:
                 'random_state': random_state,
         }
         if algorithm == 'rf':
-            rf_random_search = RandomizedSearchCV(estimator=RandomForestClassifier(), param_distributions=params, scoring='recall', cv=3, n_iter=100, verbose=1, random_state=42, n_jobs=-1)
+            rf_random_search = RandomizedSearchCV(estimator=RandomForestClassifier(), param_distributions=params, scoring='accuracy', cv=3, n_iter=100, verbose=1, random_state=42, n_jobs=-1)
             rf_random_search.fit(self.x_train_resampled, self.y_train_resampled)
 
             st.write("Best parameters:", rf_random_search.best_params_)
@@ -330,15 +331,15 @@ class Algorithms:
             st.write('O p-value foi maior que o nível de significância, logo, falhamos em rejeitar a hipótese nula. Então, %s' %(h0))
 
 algorithms_page = Algorithms()
-algorithms_page.plot_imbalanced_distribution_chart()
-algorithms_page.plot_balanced_distribution_chart()
+# algorithms_page.plot_imbalanced_distribution_chart()
+# algorithms_page.plot_balanced_distribution_chart()
 algorithms_page.calculate_score_random_forest()
-algorithms_page.calculate_score_logistic_regression()
-algorithms_page.calculate_score_svm()
-algorithms_page.calculate_score_xgboost()
-algorithms_page.show_feature_importance_logistic_regression()
-algorithms_page.hypothesis_tests_for_best_algorithm()
-algorithms_page.get_rf_metrics()
-algorithms_page.get_lr_metrics()
-algorithms_page.get_svm_metrics()
+# algorithms_page.calculate_score_logistic_regression()
+# algorithms_page.calculate_score_svm()
+# algorithms_page.calculate_score_xgboost()
+# algorithms_page.show_feature_importance_logistic_regression()
+# algorithms_page.hypothesis_tests_for_best_algorithm()
+# algorithms_page.get_rf_metrics()
+# algorithms_page.get_lr_metrics()
+# algorithms_page.get_svm_metrics()
 
